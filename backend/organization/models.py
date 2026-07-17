@@ -1,3 +1,38 @@
 from django.db import models
 
 # Create your models here.
+class Company(models.Model):
+    name = models.CharField(max_length=150)
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=15)
+    address = models.TextField()
+    website = models.URLField(blank=True, null=True)
+    logo = models.ImageField(upload_to="company/logo/",blank=True, null=True)
+    office_start_time = models.TimeField()
+    office_end_time = models.TimeField()
+    is_active= models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name ="Company"
+        verbose_name_plural="Companies"
+
+    def __str__(self):
+        return self.name
+    
+class Department(models.Model):
+    company = models.ForeignKey(Company,on_delete=models.PROTECT, related_name="departments")
+    name = models.CharField(max_length=100,unique=True)
+    description = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering =["name"]
+        verbose_name = "Department"
+        verbose_name_plural = "Departments"
+
+def __str__(self):
+    return self.name        
