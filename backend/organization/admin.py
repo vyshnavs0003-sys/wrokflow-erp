@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Company, Department
+from .models import Company, Department, Designation
 
 # Register your models here.
 
@@ -40,3 +40,21 @@ class DepartmentAdmin(admin.ModelAdmin):
         "company",
         "is_active",
     )
+
+    @admin.register(Designation)
+    class DesignationAdmin(admin.ModelAdmin):
+        list_display = (
+            "name",
+            "department",
+            "is_active",
+        )
+
+        search_fields = (
+            "name",
+            "department__name",
+        )
+
+        list_filter = (
+            "department",
+            "is_active",
+        )
