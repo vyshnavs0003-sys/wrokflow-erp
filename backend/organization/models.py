@@ -32,8 +32,8 @@ class Department(models.Model):
         verbose_name = "Department"
         verbose_name_plural = "Departments"
 
-def __str__(self):
-    return self.name        
+    def __str__(self):
+        return self.name        
 
 class Designation(models.Model):
     department = models.ForeignKey(Department,on_delete=models.PROTECT,related_name="designations")
