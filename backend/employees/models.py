@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from organization.models import Department, Designation
+from organization.models import Department, Designation, OfficeTiming
 
 # Create your models here.
 class Employee(models.Model):
@@ -26,6 +26,7 @@ class Employee(models.Model):
     employee_id = models.CharField(max_length=20,unique=True)
     department = models.ForeignKey(Department,on_delete=models.PROTECT,related_name="employees")
     designation = models.ForeignKey(Designation,on_delete=models.PROTECT,related_name="employees")
+    office_timing = models.ForeignKey(OfficeTiming,on_delete=models.PROTECT,related_name="employees",blank=True,null=True)
     phone = models.CharField(max_length=15)
     profile_photo = models.ImageField(upload_to="employees/profile_photos/",blank=True,null=True)
     gender = models.CharField(max_length=10,choices=GENDER_CHOICES)

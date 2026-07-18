@@ -8,8 +8,6 @@ class Company(models.Model):
     address = models.TextField()
     website = models.URLField(blank=True, null=True)
     logo = models.ImageField(upload_to="company/logo/",blank=True, null=True)
-    office_start_time = models.TimeField()
-    office_end_time = models.TimeField()
     is_active= models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -53,3 +51,22 @@ class Designation(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.department.name})"    
+
+class OfficeTiming(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE,related_name="office_timings")
+    shift_name = models.CharField(max_length=100)
+    start_time = models.TimeField()
+    end_time = models.TimeField
+    grace_minutes = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["shift_name"]
+        verbose_name = "Office Timing"
+        verbose_name_plural = "Office Timings"
+        unique_together = ("company", "shift_name")
+
+    def __str__(self):
+        return f"{self.company.name} - {self.shift_name}"    

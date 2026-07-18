@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Company, Department, Designation
+from .models import Company, Department, Designation, OfficeTiming
 
 # Register your models here.
 
@@ -9,8 +9,6 @@ class CompanyAdmin(admin.ModelAdmin):
         "name",
         "email",
         "phone",
-        "office_start_time",
-        "office_end_time",
         "is_active",
     )
 
@@ -58,3 +56,29 @@ class DepartmentAdmin(admin.ModelAdmin):
             "department",
             "is_active",
         )
+
+@admin.register(OfficeTiming)
+class OfficeTimingAdmin(admin.ModelAdmin):
+    list_display = (
+        "shift_name",
+        "company",
+        "start_time",
+        "end_time",
+        "grace_minutes",
+        "is_active",
+    )        
+
+    search_fields = (
+        "shift_name",
+        "company__name",
+    )
+
+    list_filter = (
+        "company",
+        "is_active",
+    )
+
+    ordering = (
+        "company",
+        "start_time",
+    )

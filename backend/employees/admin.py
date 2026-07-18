@@ -9,6 +9,7 @@ class EmployeeAdmin(admin.ModelAdmin):
         "user",
         "department",
         "designation",
+        "office_timing",
         "phone",
         "status",
     )
@@ -23,5 +24,6 @@ class EmployeeAdmin(admin.ModelAdmin):
     list_filter = (
         "department",
         "designation",
+        "office_timing",
         "status",
     )
