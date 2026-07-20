@@ -38,7 +38,7 @@ class Department(models.Model):
 class Designation(models.Model):
     department = models.ForeignKey(Department,on_delete=models.PROTECT,related_name="designations")
     name = models.CharField(max_length=100)
-    descripion = models.TextField(blank=True,null=True)
+    description = models.TextField(blank=True,null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -56,7 +56,7 @@ class OfficeTiming(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE,related_name="office_timings")
     shift_name = models.CharField(max_length=100)
     start_time = models.TimeField()
-    end_time = models.TimeField
+    end_time = models.TimeField()
     grace_minutes = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

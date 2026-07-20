@@ -12,7 +12,7 @@ class Employee(models.Model):
 
     EMPLOYMENT_TYPE_CHOICES = [
         ("Full Time", "Full Time"),
-        ("Intern", "Inter"),
+        ("Intern", "Intern"),
         ("Contract", "Contract"),
     ]
 
