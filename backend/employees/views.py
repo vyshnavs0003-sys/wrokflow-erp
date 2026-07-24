@@ -3,11 +3,14 @@ from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from .permissions import CanCreateEmployee
 
 from .serializers import EmployeeCreateSerializer
 
 
 class EmployeeCreateView(APIView):
+    permission_classes = [IsAuthenticated, CanCreateEmployee]
 
     def post(self, request):
         serializer = EmployeeCreateSerializer(data=request.data)
