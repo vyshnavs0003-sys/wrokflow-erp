@@ -1,17 +1,29 @@
-from django.shortcuts import render
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Project
 from .serializers import ProjectSerializer
-# Create your views here.
+from .permissions import CanManageProjects
+
 
 class ProjectListCreateView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [CanManageProjects]
     def get(self, request):
-        projects = Project.objects.all()
+        user = request.user
+        if user.is_superuser:
+            projects = Project.objects.all()
+        elif user.groups.filter(name="HR").exists():
+            projects = Project.objects.all()
+        elif user.groups.filter(name="Employee").exists():
+            projects = Project.objects.filter(
+                project_manager__user=user
+            ) | Project.objects.filter(
+                team_members__employee__user=user
+            )
+            projects = projects.distinct()
+        else:
+            projects = Project.objects.none()
         serializer = ProjectSerializer(
             projects,
             many=True
@@ -39,8 +51,9 @@ class ProjectListCreateView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+
 class ProjectDetailView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [CanManageProjects]
     def get(self, request, pk):
         try:
             project = Project.objects.get(pk=pk)
@@ -51,11 +64,16 @@ class ProjectDetailView(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
+        self.check_object_permissions(
+            request,
+            project
+        )
         serializer = ProjectSerializer(project)
         return Response(
             serializer.data,
             status=status.HTTP_200_OK
         )
+
     def patch(self, request, pk):
         try:
             project = Project.objects.get(pk=pk)
@@ -66,6 +84,10 @@ class ProjectDetailView(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
+        self.check_object_permissions(
+            request,
+            project
+        )
         serializer = ProjectSerializer(
             project,
             data=request.data,

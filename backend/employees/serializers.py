@@ -5,7 +5,10 @@ from .models import Employee
 class EmployeeCreateSerializer(serializers.ModelSerializer):
     username = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True)
-    role = serializers.CharField(write_only=True)
+    role = serializers.ChoiceField(
+        choices=["Employee", "HR"],
+        write_only=True
+    )
 
     class Meta:
         model = Employee
@@ -56,6 +59,7 @@ class EmployeeListSerializer(serializers.ModelSerializer):
             "status",
         ]
 
+
 class EmployeeAdminSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField(source="user.username")
@@ -83,6 +87,7 @@ class EmployeeAdminSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
+
 class EmployeeHRSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField(source="user.username")
@@ -108,6 +113,7 @@ class EmployeeHRSerializer(serializers.ModelSerializer):
             "is_active",
         ]
 
+
 class EmployeeProjectManagerSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField(source="user.username")
@@ -125,7 +131,7 @@ class EmployeeProjectManagerSerializer(serializers.ModelSerializer):
             "phone",
             "status",
         ]
-        # this serializer for future Project Manager APIs
+
 
 class EmployeeSelfSerializer(serializers.ModelSerializer):
 

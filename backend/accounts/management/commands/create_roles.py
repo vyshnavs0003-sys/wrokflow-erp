@@ -4,14 +4,19 @@ from django.contrib.auth.models import Group
 
 class Command(BaseCommand):
     help = "Create default ERP roles"
+
     def handle(self, *args, **kwargs):
+
         roles = [
             "HR",
-            "Project Manager",
             "Employee",
         ]
+
         for role in roles:
-            group, created = Group.objects.get_or_create(name=role)
+            group, created = Group.objects.get_or_create(
+                name=role
+            )
+
             if created:
                 self.stdout.write(
                     self.style.SUCCESS(

@@ -4,10 +4,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+
 from .permissions import CanCreateEmployee
 from .models import Employee
-
-from .serializers import EmployeeCreateSerializer, EmployeeListSerializer, EmployeeAdminSerializer, EmployeeHRSerializer, EmployeeProjectManagerSerializer,EmployeeSelfSerializer
+from .serializers import EmployeeCreateSerializer, EmployeeListSerializer, EmployeeAdminSerializer, EmployeeHRSerializer, EmployeeProjectManagerSerializer, EmployeeSelfSerializer
 
 
 class EmployeeCreateView(APIView):
@@ -15,7 +15,6 @@ class EmployeeCreateView(APIView):
 
     def post(self, request):
         serializer = EmployeeCreateSerializer(data=request.data)
-
         if serializer.is_valid():
             username = serializer.validated_data["username"]
             password = serializer.validated_data["password"]
@@ -26,9 +25,7 @@ class EmployeeCreateView(APIView):
                     password=password
                 )
                 employee = serializer.save(user=user)
-                group, created = Group.objects.get_or_create(
-                    name=role
-                )
+                group = Group.objects.get(name=role)
                 user.groups.add(group)
             return Response(
                 {
@@ -63,9 +60,10 @@ class EmployeeListView(APIView):
             )
         else:
             employee = user.employee_profile
-            serializer = EmployeeSelfSerializer(employee)
+            serializer = EmployeeSelfSerializer(
+                employee
+            )
         return Response(
-                    serializer.data,
-                    status=status.HTTP_200_OK
-                )    
-
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
