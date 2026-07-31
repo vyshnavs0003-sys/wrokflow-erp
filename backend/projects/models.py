@@ -54,7 +54,6 @@ class Project(models.Model):
 class ProjectTeam(models.Model):
 
     ROLE_CHOICES = [
-        ("Project Manager", "Project Manager"),
         ("Backend Developer", "Backend Developer"),
         ("Frontend Developer", "Frontend Developer"),
         ("Full Stack Developer", "Full Stack Developer"),
@@ -73,6 +72,7 @@ class ProjectTeam(models.Model):
 
     class Meta:
         ordering = ["project", "employee"]
+        constraints = [ models.UniqueConstraint(fields=["project", "employee"],name="unique_project_employee")]
 
     def __str__(self):
         return f"{self.employee} - {self.project}"
@@ -136,4 +136,4 @@ class TaskAssignment(models.Model):
         ordering = ["-assigned_date"]
 
     def __str__(self):
-        return f"{self.task} - {self.employee}"    
+        return f"{self.task} - {self.employee}"
