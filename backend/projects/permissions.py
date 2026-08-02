@@ -83,3 +83,31 @@ class CanManageProjectTasks(BasePermission):
                     is_active=True
                 ).exists()
         return False
+
+class CanManageTaskAssignments(BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        if user.is_superuser:
+            return True
+        if user.groups.filter(name="HR").exists():
+            return request.method == "GET"
+        if user.groups.filter(name="Employee").exists():
+            return True
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        task = obj.task
+        project = task.project
+        if user.is_superuser:
+            return True
+        if user.groups.filter(name="HR").exists():
+            return request.method == "GET"
+        if user.groups.filter(name="Employee").exists():
+            if project.project_manager.user == user:
+                return True
+            if obj.employee.user == user:
+                if request.method in ["GET", "PATCH"]:
+                    return True
+
+        return False

@@ -176,6 +176,7 @@ class TaskAssignmentSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
+            "task",
             "assigned_by",
             "assigned_date",
             "created_at",
@@ -184,10 +185,10 @@ class TaskAssignmentSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
 
-        task = attrs.get(
-            "task",
-            self.instance.task if self.instance else None
-        )
+        task = self.context.get("task")
+
+        if not task and self.instance:
+            task = self.instance.task
 
         employee = attrs.get(
             "employee",
