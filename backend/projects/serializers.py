@@ -1,6 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
-from .models import Project, ProjectTeam
+from .models import Project, ProjectTeam, Task, TaskAssignment
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -43,6 +43,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             )
 
         return project
+
 
 class ProjectTeamSerializer(serializers.ModelSerializer):
 
@@ -124,6 +125,123 @@ class ProjectTeamSerializer(serializers.ModelSerializer):
                         "The official project manager "
                         "cannot be added as a project team member "
                         "while they are the project manager."
+                    )
+                }
+            )
+
+        return attrs
+
+
+class TaskSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Task
+        fields = [
+            "id",
+            "project",
+            "title",
+            "description",
+            "priority",
+            "status",
+            "start_date",
+            "due_date",
+            "estimated_hours",
+            "actual_hours",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "project",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class TaskAssignmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TaskAssignment
+        fields = [
+            "id",
+            "task",
+            "employee",
+            "assigned_by",
+            "assigned_date",
+            "assignment_status",
+            "remarks",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "assigned_by",
+            "assigned_date",
+            "created_at",
+            "updated_at",
+        ]
+
+    def validate(self, attrs):
+
+        task = attrs.get(
+            "task",
+            self.instance.task if self.instance else None
+        )
+
+        employee = attrs.get(
+            "employee",
+            self.instance.employee if self.instance else None
+        )
+
+        if not task:
+            raise serializers.ValidationError(
+                {
+                    "task": "Task is required."
+                }
+            )
+
+        if not employee:
+            raise serializers.ValidationError(
+                {
+                    "employee": "Employee is required."
+                }
+            )
+
+        project = task.project
+
+        is_project_team_member = ProjectTeam.objects.filter(
+            project=project,
+            employee=employee,
+            is_active=True
+        ).exists()
+
+        if not is_project_team_member:
+            raise serializers.ValidationError(
+                {
+                    "employee": (
+                        "This employee is not an active member "
+                        "of the project team."
+                    )
+                }
+            )
+
+        existing_assignment = TaskAssignment.objects.filter(
+            task=task,
+            employee=employee
+        ).exclude(
+            pk=self.instance.pk
+        ).first() if self.instance else TaskAssignment.objects.filter(
+            task=task,
+            employee=employee
+        ).first()
+
+        if existing_assignment:
+            raise serializers.ValidationError(
+                {
+                    "employee": (
+                        "This employee is already assigned "
+                        "to this task."
                     )
                 }
             )

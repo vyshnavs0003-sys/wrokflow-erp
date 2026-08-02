@@ -2,9 +2,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Project, ProjectTeam
-from .serializers import ProjectSerializer, ProjectTeamSerializer
-from .permissions import CanManageProjects, CanManageProjectTeam
+from .models import Project, ProjectTeam, Task
+from .serializers import ProjectSerializer, ProjectTeamSerializer, TaskSerializer
+from .permissions import CanManageProjects, CanManageProjectTeam, CanManageProjectTasks
 
 
 class ProjectListCreateView(APIView):
@@ -271,4 +271,71 @@ class ProjectTeamDetailView(APIView):
                 "message": "Team member removed successfully."
             },
             status=status.HTTP_204_NO_CONTENT
+        )
+
+
+class ProjectTaskListCreateView(APIView):
+    permission_classes = [CanManageProjectTasks]
+
+    def get(self, request, project_id):
+        try:
+            project = Project.objects.get(
+                pk=project_id
+            )
+        except Project.DoesNotExist:
+            return Response(
+                {
+                    "detail": "Project not found."
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        self.check_object_permissions(
+            request,
+            project
+        )
+        tasks = Task.objects.filter(
+            project=project
+        )
+        serializer = TaskSerializer(
+            tasks,
+            many=True
+        )
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
+    def post(self, request, project_id):
+        try:
+            project = Project.objects.get(
+                pk=project_id
+            )
+        except Project.DoesNotExist:
+            return Response(
+                {
+                    "detail": "Project not found."
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        self.check_object_permissions(
+            request,
+            project
+        )
+        serializer = TaskSerializer(
+            data=request.data
+        )
+        if serializer.is_valid():
+            serializer.save(
+                project=project
+            )
+            return Response(
+                {
+                    "message": "Task created successfully",
+                    "task": serializer.data
+                },
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
         )
