@@ -1,6 +1,7 @@
 from django.db import models
 
 # Create your models here.
+
 class Company(models.Model):
     name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
@@ -18,10 +19,11 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 class Department(models.Model):
     company = models.ForeignKey(Company,on_delete=models.PROTECT, related_name="departments")
     name = models.CharField(max_length=100)
+    department_head = models.ForeignKey("employees.Employee",on_delete=models.SET_NULL,null=True,blank=True,related_name="headed_departments")
     description = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -33,7 +35,24 @@ class Department(models.Model):
         verbose_name_plural = "Departments"
 
     def __str__(self):
-        return self.name        
+        return self.name
+
+class Team(models.Model):
+    department = models.ForeignKey(Department,on_delete=models.PROTECT,related_name="teams")
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True,null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["department","name"]
+        unique_together = ("department","name")
+        verbose_name = "Team"
+        verbose_name_plural = "Teams"
+
+    def __str__(self):
+        return f"{self.name} ({self.department.name})"
 
 class Designation(models.Model):
     department = models.ForeignKey(Department,on_delete=models.PROTECT,related_name="designations")
@@ -50,7 +69,7 @@ class Designation(models.Model):
         verbose_name_plural = "Designations"
 
     def __str__(self):
-        return f"{self.name} ({self.department.name})"    
+        return f"{self.name} ({self.department.name})"
 
 class OfficeTiming(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE,related_name="office_timings")
@@ -69,4 +88,4 @@ class OfficeTiming(models.Model):
         unique_together = ("company", "shift_name")
 
     def __str__(self):
-        return f"{self.company.name} - {self.shift_name}"    
+        return f"{self.company.name} - {self.shift_name}"
